@@ -121,7 +121,7 @@ smartDelay(1000);
           DegMinSec(lng_val);
           //latpub.publish(lat_val,6);
           //latpub.publish(lng_val,6);/* Convert the decimal degree value into degrees minutes seconds form */
-          //client.publish("Client", "Vijay,"+String(lat_val)+','+String(lng_val));
+          //client.publish("Client", "uname,"+String(lat_val)+','+String(lng_val));
           String result = "inslatlong,"+ UNAME + ",0," + String(lat_val,6) + ','+ String(lng_val,6);
           Serial.println(result);
           char xx[50];
