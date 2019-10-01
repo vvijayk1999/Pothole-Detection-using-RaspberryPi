@@ -8,6 +8,8 @@ port = 00000 #portNumber
 user = "Your Username"
 password = "Your Password"
 topic = "Client"
+
+database_name = 'potholes.db'
 #----------------------------------------------------------------------
 
 
@@ -15,15 +17,15 @@ topic = "Client"
 filestatus = False
 def connect():
     global conn
-    conn = sqlite3.connect('pothole.db')
+    conn = sqlite3.connect(database_name)
     global c
     c = conn.cursor()
-        
+
 def InsertPotholeRow(username,pothole_number,latitude,longitude):
     c.execute("INSERT INTO Potholes VALUES ('"+username+"','"+pothole_number+"','"+latitude+"','"+longitude+"')")
-    print( "Pothole inserted: "+username)
-    conn.commit()  
-    
+    print( "Pothole Inserted: "+username)
+    conn.commit()
+
 def InsertUsers(username,password):
     usrName_Search = c.execute("SELECT username FROM Users WHERE username = '%s'" % username).fetchone()
     if not usrName_Search:  #same as if usrName_Search ==None
@@ -32,8 +34,8 @@ def InsertUsers(username,password):
         c.execute("INSERT INTO Users VALUES ('"+username+"','"+password+"')")
     else:
         print("Username_Taken")
-        client.publish("Android","Username_Taken")          
-    conn.commit()  
+        client.publish("Android","Username_Taken")
+    conn.commit()
 
 def showallpotholes(username):
     c.execute("SELECT * FROM Potholes").fetchone()
@@ -43,15 +45,15 @@ def showallpotholes(username):
             break
         publish("Android",'pothole,'+username+','+row[2]+','+row[3])
         #publish("Android","pothole,Vijay,13.030150223079623,77.60565242387972")
-    
+
 def publish(topic,msg):
-    client.publish(topic,msg) 
-    #time.sleep(1)      
+    client.publish(topic,msg)
+    #time.sleep(1)
 
 def CloseConnection():
     conn.close()
 #-------------------------------------------------------------------------
-    
+
 # The callback for when the client receives a CONNACK response from the server.
 def on_connect(client, userdata, flags, rc):
     print("Connected with code "+str(rc))
@@ -63,7 +65,7 @@ def on_connect(client, userdata, flags, rc):
 def on_message(client, userdata, msg):
     csv=str(msg.payload)
     csv=csv[2:-1]
-    csv_array = csv.split(",") 
+    csv_array = csv.split(",")
     if csv_array[0]=='login' :
         response = c.execute("SELECT * FROM Users WHERE username = '"+csv_array[1]+"' AND passwords = '"+csv_array[2]+"'").fetchone()
         if response:  #same as if usrName_Search ==None
@@ -79,8 +81,8 @@ def on_message(client, userdata, msg):
         InsertPotholeRow(csv_array[1],csv_array[2],csv_array[3],csv_array[4])
     elif csv_array[0] == 'getpotholes':
         showallpotholes(csv_array[1])
-        
-#-----------SQL scripts ---------------------------------------        
+
+#-----------SQL scripts ---------------------------------------
 try:
     fh = open('pothole.db', 'r')
     filestatus = True
